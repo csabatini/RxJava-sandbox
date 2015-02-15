@@ -28,7 +28,7 @@ public class RxApplication extends Application {
         return adapter.create(Api.class);
     }
 
-    private Observable<CurrencyResponse> getData() {
+    public Observable<CurrencyResponse> getData() {
         return mApiService.data();
     }
 
