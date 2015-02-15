@@ -29,6 +29,12 @@ apply plugin: 'android-unit-test'
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:21.0.3'
+    compile 'io.reactivex:rxandroid:0.24.0'
+    compile 'com.squareup.retrofit:retrofit:1.9.0'
+    compile 'com.squareup.okhttp:okhttp:2.2.0'
+    compile 'com.squareup.okhttp:okhttp-urlconnection:2.2.0'
+    compile 'org.mockito:mockito-core:2.0.3-beta'
+    compile 'com.google.code.gson:gson:2.3'
 
     testCompile 'junit:junit:4.12'
     testCompile 'org.robolectric:robolectric:2.4'
