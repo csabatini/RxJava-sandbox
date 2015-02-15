@@ -9,7 +9,14 @@ import android.widget.TextView;
 
 public class BaseFragment extends Fragment {
 
+    private RxApplication mApp;
     private TextView mText;
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        mApp = (RxApplication) getActivity().getApplication();
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
