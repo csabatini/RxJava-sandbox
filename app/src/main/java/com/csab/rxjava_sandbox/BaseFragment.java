@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 
 import rx.Observable;
@@ -18,6 +19,7 @@ import rx.subscriptions.CompositeSubscription;
 // TODO: add robolectric unit tests for this class
 public class BaseFragment extends Fragment {
 
+    private final String TAG = getClass().getSimpleName();
     private CompositeSubscription mSub = new CompositeSubscription();
     private RxApplication mApp;
     private ArrayAdapter<String> mAdapter;
@@ -27,15 +29,25 @@ public class BaseFragment extends Fragment {
                              Bundle savedInstanceState) {
         mApp = (RxApplication) getActivity().getApplication();
         View view = inflater.inflate(R.layout.fragment_base, container, false);
+
         ListView listView = (ListView) view.findViewById(R.id.listView);
         mAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1);
         listView.setAdapter(mAdapter);
+
+        Button button = (Button) view.findViewById(R.id.button);
+        // subcribing to the observable repeatadly duplicates list items, as expected
+        button.setOnClickListener(v -> updateData());
         return view;
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        updateData();
+    }
+
+
+    private void updateData() {
         mSub.add(
             mApp.getData()
                 .observeOn(AndroidSchedulers.mainThread())
@@ -46,10 +58,18 @@ public class BaseFragment extends Fragment {
                 .take(10)
                 .subscribe(new Subscriber<String>() {
                     @Override
-                    public void onCompleted() { mAdapter.notifyDataSetChanged(); }
-                    public void onError(Throwable e) { }
+                    public void onCompleted() {
+                        mAdapter.notifyDataSetChanged();
+                    }
+
+                    public void onError(Throwable e) {
+                    }
+
                     @Override
-                    public void onNext(String s) { mAdapter.add(s); }
+                    public void onNext(String s) {
+                        mAdapter.add(s);
+                        Log.d(TAG, s);
+                    }
                 }));
     }
 
