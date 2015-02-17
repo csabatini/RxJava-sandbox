@@ -1,7 +1,8 @@
-package com.csab.rxjava_sandbox;
+package com.csab.rxjava_sandbox.data;
 
 import android.util.Log;
 
+import com.csab.rxjava_sandbox.AppConfig;
 import com.csab.rxjava_sandbox.model.Currency;
 import com.csab.rxjava_sandbox.network.Api;
 
@@ -19,25 +20,35 @@ public class Repository {
     private GRexPersister mPersister;
     private Api mApi;
 
+    Observable<List<Currency>> mCurrencyStream = Observable.empty();
+
+    // TODO: add composite subscription in order to unsub/resub with android lifecycles
+    // TODO: add unit tests for this class
     public Repository(GRexPersister persister, Api api) {
         this.mPersister = persister;
         this.mApi = api;
     }
 
-    public Observable<List<Currency>> getData() {
-        Observable<List<Currency>> observable = mApi.data()
-            .map(response -> response.getCurrencies())
-            .startWith(mPersister.getList("currency", Currency.class))
-            .distinct();
+    public Observable<List<Currency>> getCurrencies() {
+        // Make retrofit API request
+        mCurrencyStream = mApi.currencies()
+            .map(response -> response.getCurrencies());
 
-        // TODO: subscribing to observable here makes onNext not trigger in fragment?
-        //observable.subscribe(list -> saveToDisk(list));
+        // Subscribe to API observable, writing results to disk
+        mCurrencyStream.subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(list -> saveToDisk(list));
 
-        return observable;
+        // Return observable front-loaded with cached results (if any)
+        return mCurrencyStream.startWith(
+            mPersister.getList(AppConfig.CURRENCY_KEY, Currency.class));
     }
 
+    // TODO: generalize method to save multiple models
     private void saveToDisk(List<Currency> list) {
-        Observable<List<Currency>> result = mPersister.putList("currency", list, Currency.class);
+        Observable<List<Currency>> result =
+            mPersister.putList(AppConfig.CURRENCY_KEY, list, Currency.class);
+
         result.subscribeOn(Schedulers.io())
               .observeOn(AndroidSchedulers.mainThread())
               .subscribe(new Subscriber<List<Currency>>() {
@@ -53,7 +64,7 @@ public class Repository {
 
                   @Override
                   public void onNext(List<Currency> currencies) {
-                      Log.d(TAG, "saveToDisk onNext!");
+                      Log.d(TAG, "saveToDisk onNext - size " + currencies.size());
                   }
               });
     }

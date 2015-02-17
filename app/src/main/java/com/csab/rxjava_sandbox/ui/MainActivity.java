@@ -1,10 +1,12 @@
-package com.csab.rxjava_sandbox;
+package com.csab.rxjava_sandbox.ui;
 
-import android.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.csab.rxjava_sandbox.R;
+import com.csab.rxjava_sandbox.ui.BaseFragment;
 
 
 public class MainActivity extends ActionBarActivity {

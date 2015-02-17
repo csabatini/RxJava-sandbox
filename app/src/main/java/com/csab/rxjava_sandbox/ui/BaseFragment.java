@@ -1,4 +1,4 @@
-package com.csab.rxjava_sandbox;
+package com.csab.rxjava_sandbox.ui;
 
 import android.app.Fragment;
 import android.os.Bundle;
@@ -6,22 +6,27 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import rx.Observable;
+import com.csab.rxjava_sandbox.R;
+import com.csab.rxjava_sandbox.RxApplication;
+import com.csab.rxjava_sandbox.adapter.CurrencyAdapter;
+import com.csab.rxjava_sandbox.model.Currency;
+
+import java.util.List;
+
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
-// TODO: add robolectric unit tests for this class
+// TODO: add unit tests for this class
 public class BaseFragment extends Fragment {
 
     private final String TAG = getClass().getSimpleName();
     private CompositeSubscription mSub = new CompositeSubscription();
     private RxApplication mApp;
-    private ArrayAdapter<String> mAdapter;
+    private CurrencyAdapter mAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -29,8 +34,9 @@ public class BaseFragment extends Fragment {
         mApp = (RxApplication) getActivity().getApplication();
         View view = inflater.inflate(R.layout.fragment_base, container, false);
 
+        // TODO: convert to RecyclerView
         ListView listView = (ListView) view.findViewById(R.id.listView);
-        mAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1);
+        mAdapter = new CurrencyAdapter(getActivity());
         listView.setAdapter(mAdapter);
 
         return view;
@@ -40,23 +46,26 @@ public class BaseFragment extends Fragment {
     public void onResume() {
         super.onResume();
         mSub.add(
-            mApp.getRepository().getData()
+            mApp.getRepository().getCurrencies()
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
-                    .flatMap(currencies -> Observable.from(currencies))
-                    .map(currency -> currency.getName())
-                    .subscribe(new Subscriber<String>() {
+                    .subscribe(new Subscriber<List<Currency>>() {
                         @Override
                         public void onCompleted() {
                             mAdapter.notifyDataSetChanged();
-                        }
-
-                        public void onError(Throwable e) {
+                            Log.d(TAG, "onComplete!");
                         }
 
                         @Override
-                        public void onNext(String s) {
-                            mAdapter.add(s);
+                        public void onError(Throwable e) {
+                            Log.d(TAG, e.getMessage() + "");
+                        }
+
+                        @Override
+                        public void onNext(List<Currency> currencies) {
+                            mAdapter.clear();
+                            mAdapter.addAll(currencies);
+                            Log.d(TAG, "Resetting adapter - input size " + currencies.size());
                         }
                     }));
     }

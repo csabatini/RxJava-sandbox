@@ -2,6 +2,8 @@ package com.csab.rxjava_sandbox;
 
 import android.app.Fragment;
 
+import com.csab.rxjava_sandbox.ui.MainActivity;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

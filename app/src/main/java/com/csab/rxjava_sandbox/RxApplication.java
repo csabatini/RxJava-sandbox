@@ -2,6 +2,7 @@ package com.csab.rxjava_sandbox;
 
 import android.app.Application;
 
+import com.csab.rxjava_sandbox.data.Repository;
 import com.csab.rxjava_sandbox.network.Api;
 import com.squareup.okhttp.OkHttpClient;
 
@@ -24,16 +25,20 @@ public class RxApplication extends Application {
         return mRepository;
     }
 
+    public void setRepository(Repository repo) {
+        mRepository = repo;
+    }
+
     private Api buildApi() {
         RestAdapter adapter = new RestAdapter.Builder()
-                .setEndpoint(Api.API_URL)
+                .setEndpoint(AppConfig.API_URL)
                 .setClient(new OkClient(new OkHttpClient()))
                 .build();
         return adapter.create(Api.class);
     }
 
     private GRexPersister buildCache() {
-        return new GRexPersister(this, "cache", new GsonConverter());
+        return new GRexPersister(this, AppConfig.FILE_DIR, new GsonConverter());
     }
 
 }
