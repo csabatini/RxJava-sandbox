@@ -11,4 +11,7 @@ public abstract class AppConfig {
     /* Key constant for Currency data cache */
     public static final String CURRENCY_KEY = "currency";
 
+    /* Fragment tag constant for CurrencyFragment */
+    public static final String CURRENCY_FRAGMENT = "currency_fragment";
+
 }

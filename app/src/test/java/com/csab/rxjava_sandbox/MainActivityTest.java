@@ -33,7 +33,8 @@ public class MainActivityTest {
 
     @Test
     public void testFragmentState() {
-        Fragment fragment = mActivity.getFragmentManager().findFragmentByTag("base");
+        Fragment fragment = mActivity.getFragmentManager()
+                                     .findFragmentByTag(AppConfig.CURRENCY_FRAGMENT);
         assertThat(fragment).isNotNull().isAdded().isResumed();
     }
 

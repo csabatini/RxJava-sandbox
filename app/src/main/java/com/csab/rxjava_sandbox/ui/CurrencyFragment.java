@@ -21,7 +21,7 @@ import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
 // TODO: add unit tests for this class
-public class BaseFragment extends Fragment {
+public class CurrencyFragment extends Fragment {
 
     private final String TAG = getClass().getSimpleName();
     private CompositeSubscription mSub = new CompositeSubscription();
