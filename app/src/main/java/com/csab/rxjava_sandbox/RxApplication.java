@@ -2,22 +2,26 @@ package com.csab.rxjava_sandbox;
 
 import android.app.Application;
 
-import com.csab.rxjava_sandbox.model.CurrencyResponse;
 import com.csab.rxjava_sandbox.network.Api;
 import com.squareup.okhttp.OkHttpClient;
 
+import au.com.gridstone.grex.GRexPersister;
+import au.com.gridstone.grex.converters.GsonConverter;
 import retrofit.RestAdapter;
 import retrofit.client.OkClient;
-import rx.Observable;
 
 public class RxApplication extends Application {
 
-    private static Api mApiService;
+    private static Repository mRepository;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        mApiService = buildApi();
+        mRepository = new Repository(buildCache(), buildApi());
+    }
+
+    public Repository getRepository() {
+        return mRepository;
     }
 
     private Api buildApi() {
@@ -28,8 +32,8 @@ public class RxApplication extends Application {
         return adapter.create(Api.class);
     }
 
-    public Observable<CurrencyResponse> getData() {
-        return mApiService.data();
+    private GRexPersister buildCache() {
+        return new GRexPersister(this, "cache", new GsonConverter());
     }
 
 }

@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 
 import rx.Observable;
@@ -34,43 +33,32 @@ public class BaseFragment extends Fragment {
         mAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1);
         listView.setAdapter(mAdapter);
 
-        Button button = (Button) view.findViewById(R.id.button);
-        // subcribing to the observable repeatadly duplicates list items, as expected
-        button.setOnClickListener(v -> updateData());
         return view;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        updateData();
-    }
-
-
-    private void updateData() {
         mSub.add(
-            mApp.getData()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .map(response -> response.getCurrencies())
-                .flatMap(currencies -> Observable.from(currencies))
-                .map(currency -> currency.getName())
-                .take(10)
-                .subscribe(new Subscriber<String>() {
-                    @Override
-                    public void onCompleted() {
-                        mAdapter.notifyDataSetChanged();
-                    }
+            mApp.getRepository().getData()
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
+                    .flatMap(currencies -> Observable.from(currencies))
+                    .map(currency -> currency.getName())
+                    .subscribe(new Subscriber<String>() {
+                        @Override
+                        public void onCompleted() {
+                            mAdapter.notifyDataSetChanged();
+                        }
 
-                    public void onError(Throwable e) {
-                    }
+                        public void onError(Throwable e) {
+                        }
 
-                    @Override
-                    public void onNext(String s) {
-                        mAdapter.add(s);
-                        Log.d(TAG, s);
-                    }
-                }));
+                        @Override
+                        public void onNext(String s) {
+                            mAdapter.add(s);
+                        }
+                    }));
     }
 
     @Override
